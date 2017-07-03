@@ -57,6 +57,35 @@ public class WifiData {
 
     public String tcurrentTime = "currentTime";
 
+    public String wRSSI0 = "RSSI0";
+    public String wRSSI1 = "RSSI1";
+    public String wRSSI2 = "RSSI2";
+    public String wRSSI3 = "RSSI3";
+    public String wRSSI4 = "RSSI4";
+    public String wRSSI5 = "RSSI5";
+    public String wRSSI6 = "RSSI6";
+    public String wRSSI7 = "RSSI7";
+    public String wRSSI8 = "RSSI8";
+    public String wRSSI9 = "RSSI9";
+    public String wRSSI10 = "RSSI10";
+    public String wRSSI11 = "RSSI11";
+    public String wRSSI12 = "RSSI12";
+    public String wRSSI13 = "RSSI13";
+    public String wRSSI14 = "RSSI14";
+    public String wRSSI15 = "RSSI15";
+
+    public int RSSI0 = 0;
+    public int RSSI1 = 0;
+    public int RSSI2 = 0;
+    public int RSSI3 = 0;
+    public int RSSI4 = 0;
+    public int RSSI5 = 0;
+    public int RSSI6 = 0;
+    public int RSSI7 = 0;
+    public int RSSI8 = 0;
+    public int RSSI9 = 0;
+
+    public int RSSI_arr[] = new int[16];
 
     public void WifiData(){
     }
@@ -86,5 +115,20 @@ public class WifiData {
         IpAddr = 0;
 
         currentTime = "null";
+
+        RSSI0 = 0;
+        RSSI1 = 0;
+        RSSI2 = 0;
+        RSSI3 = 0;
+        RSSI4 = 0;
+        RSSI5 = 0;
+        RSSI6 = 0;
+        RSSI7 = 0;
+        RSSI8 = 0;
+        RSSI9 = 0;
+
+        for(int i=0;i<RSSI_arr.length;++i){
+            RSSI_arr[i] = 0;
+        }
     }
 }

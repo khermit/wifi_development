@@ -41,6 +41,22 @@ public class WifiDataCURD {
         values.put(d.lSpeed, d.Speed);
         values.put(d.llast_time, d.last_time);
         values.put(d.lnew_time, d.new_time);
+        values.put(d.wRSSI0, d.RSSI_arr[0]);
+        values.put(d.wRSSI1, d.RSSI_arr[1]);
+        values.put(d.wRSSI2, d.RSSI_arr[2]);
+        values.put(d.wRSSI3, d.RSSI_arr[3]);
+        values.put(d.wRSSI4, d.RSSI_arr[4]);
+        values.put(d.wRSSI5, d.RSSI_arr[5]);
+        values.put(d.wRSSI6, d.RSSI_arr[6]);
+        values.put(d.wRSSI7, d.RSSI_arr[7]);
+        values.put(d.wRSSI8, d.RSSI_arr[8]);
+        values.put(d.wRSSI9, d.RSSI_arr[9]);
+        values.put(d.wRSSI10, d.RSSI_arr[10]);
+        values.put(d.wRSSI11, d.RSSI_arr[11]);
+        values.put(d.wRSSI12, d.RSSI_arr[12]);
+        values.put(d.wRSSI13, d.RSSI_arr[13]);
+        values.put(d.wRSSI14, d.RSSI_arr[14]);
+        values.put(d.wRSSI15, d.RSSI_arr[15]);
 
 
 

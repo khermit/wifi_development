@@ -21,14 +21,34 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db){
         String CREATE_TABLE_STUDENT="CREATE TABLE wifi ( " +
                 "WifiId" + " INTEGER PRIMARY KEY AUTOINCREMENT ," +
-                "currentTime" + " TEXT ," +
 
                 "SSID" + " TEXT ," +
-                "BSSID" + " TEXT ," +
                 "MAC" + " TEXT ," +
                 "state" + " TEXT ," +
+                "currentTime" + " TEXT ," +
+                "BSSID" + " TEXT ," +
+
+
                 "RSSI" + " INTEGER ," +
                 "linkSpeed" + " INTEGER ," +
+
+                "RSSI0" + " INTEGER ," +
+                "RSSI1" + " INTEGER ," +
+                "RSSI2" + " INTEGER ," +
+                "RSSI3" + " INTEGER ," +
+                "RSSI4" + " INTEGER ," +
+                "RSSI5" + " INTEGER ," +
+                "RSSI6" + " INTEGER ," +
+                "RSSI7" + " INTEGER ," +
+                "RSSI8" + " INTEGER ," +
+                "RSSI9" + " INTEGER ," +
+                "RSSI10" + " INTEGER ," +
+                "RSSI11" + " INTEGER ," +
+                "RSSI12" + " INTEGER ," +
+                "RSSI13" + " INTEGER ," +
+                "RSSI14" + " INTEGER ," +
+                "RSSI15" + " INTEGER ," +
+
                 "Frequency" + " INTEGER ," +
                 "NetID" + " INTEGER ," +
                 "Metered" + " TEXT ," +

@@ -137,9 +137,10 @@ public class WifiActivity extends Activity {
                         e.printStackTrace();
                     }
                     //加锁、获取信息、打开文件、写入数据、清楚对象里的数据、解锁
-                    int f = 1;
+                    int f = 2;
                     if(1==f){//不断切换wifi,并将连接上的wifi数据存入数据库
-                        if(mWifiAdmin.changeWifi(mContext)){
+                        if(mWifiAdmin.connectWifi(mContext)){
+                        //if(mWifiAdmin.changeWifi(mContext)){
                             int a_num = 0;
                             while( !mWifiAdmin.isWifiConnected(mContext) && a_num++ < 100 )
                             {
@@ -157,19 +158,35 @@ public class WifiActivity extends Activity {
                                 d.currentTime = myTime.getTime().toString();
                                 int id = wifiDataCURD.insert(d);
                                 Log.i("WifiActivity", "_____wifi____id____" + id);
+                                Log.i("WifiActivity", "_____wifi____SSID____" + d.SSID);
+                                Log.i("WifiActivity", "_____wifi____BSSID____" + d.BSSID);
                                 d.lock = true;
                                 d.clear();
                             }
                         }
                     }
                     else{
-                        setAllInfo();
-                        d.lock = false;
-                        d.currentTime = myTime.getTime().toString();
-                        int id = wifiDataCURD.insert(d);
-                        Log.i("WifiActivity", "_____wifi____id____" + id);
-                        d.lock = true;
-                        d.clear();
+                        int a_num = 0;
+                        while( !mWifiAdmin.isWifiConnected(mContext) && a_num++ < 100 )
+                        {
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            Log.i("WifiActivity", "connect__a_num: " + a_num);
+                        }
+                        //Log.i("WifiActivity", "connect__: " + mWifiAdmin.isWifiConnected(mContext));
+                        if(a_num < 100) {
+                            mWifiAdmin.startScan();
+                            setAllInfo();
+                            d.lock = false;
+                            d.currentTime = myTime.getTime().toString();
+                            int id = wifiDataCURD.insert(d);
+                            Log.i("WifiActivity", "_____wifi____id____" + id);
+                            d.lock = true;
+                            d.clear();
+                        }
                     }
                 }
             }
@@ -310,15 +327,12 @@ public class WifiActivity extends Activity {
                         //"venueName:" + mScanResult.venueName + "  ").append(
 
                         "IpAddress:" + mWifiAdmin.getIpAddress() + "  ").append(
-
                         "\n\n"
                 );
-
             }
             //allNetWork.setText("扫描到的wifi网络：\n" + mWifiAdmin.getWifiInfo(d) + sb.toString());
         }
     }
-
 
     public String setAllInfo() {
         StringBuffer info = new StringBuffer();
@@ -328,7 +342,6 @@ public class WifiActivity extends Activity {
                 myTime.getTime());
         return info.toString();
     }
-
     //GPS
     private void updateView(Location location){
         if(null == location){

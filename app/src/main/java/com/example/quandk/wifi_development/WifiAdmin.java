@@ -20,8 +20,11 @@ public class WifiAdmin {
     private WifiManager mWifiManager;
     private WifiInfo mWifiInfo;
     private List<ScanResult> mWifiList;
+    private List<ScanResult> mWifiListInfo;
     private List<WifiConfiguration> mWifiConfigurations;
+    private WifiConfiguration xjtuConfiguration = null;
     private int netIdIndex = 1;
+    private int oldid = -5;
     private int num_xjtu1x = 0;
     StringBuffer sb = new StringBuffer();
     WifiManager.WifiLock mWifiLock;
@@ -70,6 +73,7 @@ public class WifiAdmin {
         Log.i("WifiAdminActivity", "__________startScan_________");
         mWifiManager.startScan();
         mWifiList = mWifiManager.getScanResults();
+        mWifiListInfo = mWifiList;
         mWifiConfigurations = mWifiManager.getConfiguredNetworks();//return a list of all networks configured for the current foreground user. Upon failure to fetch or when Wifi if turn off ,it can be null
     }
     public List<ScanResult> getmWifiList(){
@@ -107,38 +111,203 @@ public class WifiAdmin {
         mWifiManager.disableNetwork(netId);
         mWifiManager.disconnect();
     }
-
-    public boolean changeWifi(Context context) {
+    public boolean changeRssi(Context context){
         mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        mWifiConfigurations = mWifiManager.getConfiguredNetworks();//return a list of all networks configured for the current foreground user. Upon failure to fetch or when Wifi if turn off ,it can be null
 
         mWifiManager.startScan();
         mWifiList = mWifiManager.getScanResults();
 
-        if (netIdIndex >= mWifiConfigurations.size())
+        for(int i=0; i<mWifiList.size(); i++){
+            Log.i("WifiAdmin", "____ConSize___________mWifilist----:"  + mWifiList.get(i));
+        }
+
+        for(;num_xjtu1x<mWifiList.size();){
+            if("xjtu1x".equals(mWifiList.get(num_xjtu1x).SSID)){
+                mWifiList.get(num_xjtu1x).level = -20;
+                num_xjtu1x++;
+                break;
+            }
+            else{
+                num_xjtu1x++;
+                if(num_xjtu1x>=mWifiList.size())
+                    num_xjtu1x = 0;
+            }
+
+        }
+        for(int i=0; i<mWifiList.size(); i++){
+            Log.i("WifiAdmin", "____ConSize___________mWifilist2222----:"  + mWifiList.get(i));
+        }
+
+        boolean isDisc = mWifiManager.disconnect();
+        Log.i("WifiAdmin", "____isDisc:"+isDisc);
+        //boolean isEnable = mWifiManager.enableNetwork(mWifiConfigurations.get(netIdIndex).networkId, true);
+        //boolean isEnable = mWifiManager.enableNetwork(newid, true);
+        //Log.i("WifiAdmin", "____isEnable:"+isEnable);
+        ++netIdIndex;
+
+        boolean isConn = mWifiManager.reconnect();
+        Log.i("WifiAdmin", "____isConn:"+isConn);
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return isConn;
+    }
+    public boolean connectWifi(Context context)
+    {
+        mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+
+        mWifiManager.startScan();
+        mWifiList = mWifiManager.getScanResults();
+
+        for(int i=0; i<mWifiList.size(); i++){
+            Log.i("WifiAdmin", "____ConSize___________mWifilist----:"  + mWifiList.get(i));
+        }
+
+        mWifiConfigurations = mWifiManager.getConfiguredNetworks();
+        WifiConfiguration conf;
+        if(xjtuConfiguration == null){
+            for(int i=0; i<mWifiConfigurations.size(); i++){
+                if("xjtu1x".equals(mWifiConfigurations.get(i).SSID.replaceAll("\"",""))){
+                    xjtuConfiguration = mWifiConfigurations.get(i);
+
+                    Log.i("WifiAdmin", "____ConSize___________mWifiConfigurations----:"  + mWifiConfigurations.get(i));
+
+                }
+            }
+        }
+        conf = xjtuConfiguration;
+        mWifiManager.startScan();
+        mWifiList = mWifiManager.getScanResults();
+        if(num_xjtu1x>=mWifiList.size())
+            num_xjtu1x = 0;
+        for(;num_xjtu1x<mWifiList.size();){
+            if("xjtu1x".equals(mWifiList.get(num_xjtu1x).SSID)){
+                conf.BSSID = mWifiList.get(num_xjtu1x).BSSID;
+                num_xjtu1x++;
+                break;
+            }
+            else{
+                num_xjtu1x++;
+                if(num_xjtu1x>=mWifiList.size())
+                    num_xjtu1x = 0;
+            }
+
+        }
+
+        //conf.BSSID = "38:91:d5:c9:81:c1";
+        Log.i("WifiAdmin", "____conf___________conf---:"  + num_xjtu1x + "  " + conf);
+
+        if(oldid>-1)
+            ;//conf.BSSID = "38:91:d5:c9:81:c1";;//mWifiManager.removeNetwork(oldid);
+        //conf.BSSID = "38:91:d5:c6:98:f1";
+        //conf.BSSID = "38:91:d5:c9:81:c1";
+        int newid = mWifiManager.updateNetwork(conf);
+        oldid = newid;
+        mWifiManager.startScan();
+        mWifiListInfo = mWifiManager.getScanResults();
+
+
+        boolean isDisc = mWifiManager.disconnect();
+        Log.i("WifiAdmin", "____isDisc:"+isDisc);
+        //boolean isEnable = mWifiManager.enableNetwork(mWifiConfigurations.get(netIdIndex).networkId, true);
+        //boolean isEnable = mWifiManager.enableNetwork(newid, true);
+        //Log.i("WifiAdmin", "____isEnable:"+isEnable);
+        ++netIdIndex;
+
+        boolean isConn = mWifiManager.reconnect();
+        Log.i("WifiAdmin", "____isConn:"+isConn);
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return isConn;
+
+    }
+
+    public boolean changeWifi(Context context) {
+        mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        mWifiConfigurations = mWifiManager.getConfiguredNetworks();//return a list of all networks configured for the current foreground user. Upon failure to fetch or when Wifi if turn off ,it can be null
+        int newid = 0;
+
+        WifiConfiguration conf = new WifiConfiguration();
+
+
+        if(xjtuConfiguration == null){
+            for(int i=0; i<mWifiConfigurations.size(); i++){
+                if("xjtu1x".equals(mWifiConfigurations.get(i).SSID.replaceAll("\"",""))){
+                    xjtuConfiguration = mWifiConfigurations.get(i);
+                    conf = xjtuConfiguration;
+                    Log.i("WifiAdmin", "____ConSize___________mWifiConfigurations----:"  + mWifiConfigurations.get(i).preSharedKey);
+                    Log.i("WifiAdmin", "____ConSize___________mWifiConfigurations--xjtu--:"  + xjtuConfiguration);
+                    Log.i("WifiAdmin", "____ConSize___________mWifiConfigurations--psk--:"  + xjtuConfiguration.preSharedKey.toString());
+                }
+            }
+        }
+
+        mWifiManager.startScan();
+        mWifiList = mWifiManager.getScanResults();
+        for(int i=0; i<mWifiList.size(); i++){
+            Log.i("WifiAdmin", "____ConSize___________mWifilist----:"  + mWifiList.get(i));
+        }
+
+
+            if (netIdIndex >= mWifiConfigurations.size())
                 netIdIndex = 0;
 
             //判断当前的配置是否在扫描的结果中，得到一个配置的netIdIndex
             boolean flag_wifi = true;
-            while(flag_wifi){
-                mWifiManager.startScan();
-                mWifiList = mWifiManager.getScanResults();
+            //while(flag_wifi){
+                //mWifiManager.startScan();
+                //mWifiList = mWifiManager.getScanResults();
 
-                String ssid = mWifiConfigurations.get(netIdIndex++).SSID.replaceAll("\"","");//得到配置文件中的ssid   需要判断 循环扫描列表，看xjtu1的BSSID（mac）是否在 配置文件中
-                if (netIdIndex >= mWifiConfigurations.size())
-                    netIdIndex = 0;
-                for(int i=0; i<mWifiList.size(); i++){
-
-                    if(ssid.equals(mWifiList.get(i).SSID)){
+                //String ssid = mWifiConfigurations.get(netIdIndex++).SSID.replaceAll("\"","");//得到配置文件中的ssid   需要判断 循环扫描列表，看xjtu1的BSSID（mac）是否在 配置文件中
+                //if (netIdIndex >= mWifiConfigurations.size())
+                //   netIdIndex = 0;
+                //for(int i=0; i<mWifiList.size(); i++){//循环扫描列表
+                if(num_xjtu1x >= mWifiList.size())
+                    num_xjtu1x=0;
+                while(flag_wifi){
+                    //if(ssid.equals(mWifiList.get(i).SSID)){
+                    //   flag_wifi = false;
+                    //}
+                    if("xjtu1x".equals(mWifiList.get(num_xjtu1x).SSID)){
                         flag_wifi = false;
-                    }
-                    if("xjtu1x".equals(mWifiList.get(i).SSID)){
+                        xjtuConfiguration.BSSID = mWifiList.get(num_xjtu1x).BSSID;
+                        if(oldid>-1)
+                            mWifiManager.removeNetwork(oldid);
+                        //newid = mWifiManager.addNetwork(xjtuConfiguration);
+                        //oldid = newid;
+                        newid = mWifiManager.updateNetwork(xjtuConfiguration);
+                        Log.i("WifiAdmin", "____ConSize___________newNetworkId:" + newid);
+                        Log.i("WifiAdmin", "____ConSize___________num_xjtu1x:" + num_xjtu1x);
+                        Log.i("WifiAdmin", "____ConSize___________xjtuConfiguration:" + xjtuConfiguration);
+                        num_xjtu1x++;
+                        /*for(int j=0; j<mWifiConfigurations.size();j++){
+                            Log.i("WifiAdmin", "___________Con____:" + j + ":" + mWifiConfigurations.get(j));
+                            Log.i("WifiAdmin", "___________Lis____:" + num_xjtu1x + ":" + mWifiList.get(num_xjtu1x));
+                            Log.i("WifiAdmin", "___________null____:" + "null".equals(mWifiConfigurations.get(j).BSSID));
+                            if ( ("null".equals(mWifiConfigurations.get(j).BSSID) || "any".equals(mWifiConfigurations.get(j).BSSID) ) && mWifiConfigurations.get(j).BSSID.equals(mWifiList.get(i).BSSID));
+                            else{
+                                xjtuConfiguration.BSSID = mWifiList.get(i).BSSID;
+                                int newid = mWifiManager.addNetwork(xjtuConfiguration);
+                                Log.i("WifiAdmin", "____ConSize___________newNetworkId:" + newid);
+                            }
+
+                        }*/
 
                     }
+                    num_xjtu1x++;
+                    if(num_xjtu1x >= mWifiList.size())
+                        num_xjtu1x=0;
                     //Log.i("WifiAdmin", "____ConSize___________scanresult----:" + ssid+ "," + mWifiList.get(i).SSID.toString() + ',' + ssid.equals(mWifiList.get(i).SSID));
                 }
-            }
-
+            //}
+        /*
         for(int i=0; i<mWifiList.size(); i++)
             Log.i("WifiAdmin", "____ConSize___________scanresult----:" + mWifiList.get(i).toString());
         for(int i=0; i<mWifiConfigurations.size(); i++)
@@ -148,7 +317,7 @@ public class WifiAdmin {
                 netIdIndex = mWifiConfigurations.size()-1;
             else
                 netIdIndex--;
-
+        */
             /*Log.i("WifiAdmin", "____ConSize_____networkId:" + mWifiConfigurations.get(netIdIndex).networkId + "  " + mWifiConfigurations.get(netIdIndex).SSID);
             if (mWifiConfigurations.get(netIdIndex).SSID.toString().indexOf(mWifiManager.getScanResults().toString()) != -1)
                 Log.i("WifiAdmin", "____ConSize_________:OKOKOKOKOKOKOKOK");
@@ -160,7 +329,8 @@ public class WifiAdmin {
             */
             boolean isDisc = mWifiManager.disconnect();
             Log.i("WifiAdmin", "____isDisc:"+isDisc);
-            boolean isEnable = mWifiManager.enableNetwork(mWifiConfigurations.get(netIdIndex).networkId, true);
+            //boolean isEnable = mWifiManager.enableNetwork(mWifiConfigurations.get(netIdIndex).networkId, true);
+            boolean isEnable = mWifiManager.enableNetwork(newid, true);
             Log.i("WifiAdmin", "____isEnable:"+isEnable);
             ++netIdIndex;
 
@@ -227,7 +397,25 @@ public class WifiAdmin {
             d.Hidden = mWifiInfo.getHiddenSSID();
             d.IpAddr = mWifiInfo.getIpAddress();
             d.BSSID = mWifiInfo.getBSSID();
+            Log.i("WifiAdmin", "____getSupplicantState:"+ mWifiInfo.toString());
+        }
+        int j = 1;
+        for(int ii=0; ii<mWifiListInfo.size(); ++ii){
+            if("xjtu1x".equals(mWifiListInfo.get(ii).SSID)){
+                if(mWifiInfo.getBSSID().equals(mWifiListInfo.get(ii).BSSID)){
+                    d.RSSI_arr[0] = mWifiListInfo.get(ii).level;
+                }
+                else{
+                    if(j<d.RSSI_arr.length){
+                        d.RSSI_arr[j] = mWifiListInfo.get(ii).level;
+                        ++j;
+                    }
+
+                }
+            }
         }
         return sb.toString();
     }
 }
+
+
